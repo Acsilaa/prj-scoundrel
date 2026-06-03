@@ -1,0 +1,18 @@
+import type { CardCode } from "../../types/types";
+
+export default function PlayingCard({ cardCode, interactable, onClick }: { cardCode: CardCode|null, interactable: boolean, onClick?: (code: CardCode|null)=>{} }) {
+    const svgURL = cardCode ? `https://deckofcardsapi.com/static/img/${cardCode}.png` : 'https://deckofcardsapi.com/static/img/back.png';
+    const interactableClassNames = `
+    cursor-pointer
+    group-hover:animate-hovercard
+    group-hover:scale-105
+    group-hover:-translate-y-2
+    group-hover:shadow-xl
+    group-hover:shadow-black
+    `;
+    return (
+        <div className="group w-32 m-20" onClick={()=>{onClick?.(cardCode)}}>
+            <img src={svgURL} className={`${interactable ? interactableClassNames : ''} duration-300`}/>
+        </div>
+    )
+}
