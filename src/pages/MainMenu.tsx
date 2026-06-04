@@ -26,6 +26,7 @@ export default function MainMenu() {
             health: 20,
             skipCooldown: 0,
             weapon: null,
+            remaining: 52,
         };
 
         GStateHook.set(newGameState);
@@ -42,7 +43,7 @@ export default function MainMenu() {
         // restore deck into zustand store
         useDeckOfCards.setState({
             deckId: gamestate.deck_id,
-            remaining: 52, // or keep saved value if you store it later
+            remaining: gamestate.remaining
         });
 
         pagehook.set(<Game />);

@@ -7,6 +7,7 @@ export type GameState = {
     currentRoom: (CardCode|null)[],
     healCooldown: number,
     skipCooldown: number,
+    remaining: number,
 }
 
 export const saveToLS = (gamestate: GameState) => {

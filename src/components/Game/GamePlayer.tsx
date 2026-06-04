@@ -4,6 +4,7 @@ import PlayingCard from "../PlayingCard/PlayingCard";
 import Talon from "../PlayingCard/Talon";
 import type { CardCode } from "../../types/types";
 import { useDeckOfCards } from "../../lib/deckofcards";
+import WeaponDisplay from "./WeaponDisplay";
 
 export default function GamePlayer() {
     const talonRef = useRef<HTMLDivElement>(null);
@@ -49,7 +50,7 @@ export default function GamePlayer() {
         <h1 className="text-center text-4xl mb-20">Scoundrel</h1>
         <div className="w-8/12 mx-auto flex items-center justify-between">
             <div className="group relative">
-                <Talon remaining={5} max={5} ref={talonRef} />
+                <Talon remaining={gamestate.gamestate!.remaining} max={5} ref={talonRef} />
                 <span className={`hidden absolute group-hover:block top-full left-1/2 -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 ? 'text-red-800':''}`}>Skip</span>
             </div>
             <div className="flex items-center justify-center w-[700px]">
@@ -65,6 +66,17 @@ export default function GamePlayer() {
                 <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 ml-auto flex items-center justify-center" ref={slot4Ref}>
                     {slotCards[3] ? <PlayingCard interactable cardCode={slotCards[3]} onClick={()=>{console.log(slotCards[3])}} /> : null}
                 </div>
+            </div>
+        </div>
+        <div className="w-8/12 grid [grid-template-areas:'a_a_b_b_c_c'_'a_a_b_b_c_c'] mx-auto content-center place-items-center mt-32">
+            <div style={{gridArea:'a'}}>
+                <span>{gamestate.gamestate!.health}</span>
+            </div>
+            <div style={{gridArea:'b'}}>
+                <WeaponDisplay weapon={gamestate.gamestate!.weapon} />
+            </div>
+            <div style={{gridArea:'c'}}>
+                discarded?
             </div>
         </div>
     </>
