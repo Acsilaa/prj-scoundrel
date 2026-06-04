@@ -76,7 +76,7 @@ export default function GamePlayer() {
                 <WeaponDisplay weapon={gamestate.gamestate!.weapon} />
             </div>
             <div style={{gridArea:'c'}}>
-                discarded?
+                {/* empty */}
             </div>
         </div>
     </>
