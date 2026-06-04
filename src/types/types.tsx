@@ -5,3 +5,10 @@ export type Rank = "A" | "K" | "Q" | "J" | "10"
 export type Suit = "S" | "H" | "C" | "D";
 
 export type CardCode = `${Rank}${Suit}`;
+
+export type Weapon = {
+  strength: number,
+  limit: number | null,
+  limitSuite: string | null,
+}
+

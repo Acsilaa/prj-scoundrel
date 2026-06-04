@@ -11,7 +11,7 @@ export default function PlayingCard({ cardCode, interactable, onClick }: { cardC
     group-hover:shadow-black
     `;
     return (
-        <div className="group w-32 m-20" onClick={()=>{onClick?.(cardCode)}}>
+        <div className="group w-32" onClick={()=>{onClick?.(cardCode)}}>
             <img src={svgURL} className={`${interactable ? interactableClassNames : ''} duration-300`}/>
         </div>
     )
