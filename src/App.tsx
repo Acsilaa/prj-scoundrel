@@ -20,6 +20,7 @@ export const useGameState = create<GameStateHook>((set)=>({
   gamestate: null,
   set: (state: GameState) => set({gamestate: state}),
 }))
+
 function App() {
 
   const currentPage = usePage((state) => state.current);
