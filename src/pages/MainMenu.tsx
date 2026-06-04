@@ -20,7 +20,7 @@ export default function MainMenu() {
         const deckId = useDeckOfCards.getState().deckId;
 
         const newGameState = {
-            currentRoom: [],
+            currentRoom: [null, null, null, null],
             deck_id: deckId!,
             healCooldown: 0,
             health: 20,

@@ -4,7 +4,7 @@ export type GameState = {
     deck_id: string,
     health: number,
     weapon: Weapon | null,
-    currentRoom: CardCode[],
+    currentRoom: (CardCode|null)[],
     healCooldown: number,
     skipCooldown: number,
 }

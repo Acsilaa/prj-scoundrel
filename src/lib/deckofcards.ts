@@ -30,7 +30,6 @@ export type CardDraw = {
 type DeckState = {
   deckId: string | null;
   remaining: number;
-
   newDeck: () => Promise<void>;
   draw: (amount: number) => Promise<CardDraw[]>;
   toBottom: (cardCodes: CardCode[]) => Promise<void>;
