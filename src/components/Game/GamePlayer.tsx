@@ -78,7 +78,7 @@ export default function GamePlayer() {
 
         let cardCount = 4;
         newCards.forEach(c => c === null ? cardCount-- : null)
-        if (cardCount < 2 && DOC.remaining != 0) {
+        if (cardCount < 2 && DOC.remaining != 0 && newGameState.health > 0) {
             setCanInteract(false);
             await endRound(newGameState);
             setCanInteract(true);
@@ -97,7 +97,7 @@ export default function GamePlayer() {
                     Math.min(codeToNumber(card), gs.weapon.strength))
                 : 0;
             reduction = Math.max(0, reduction);
-            const newHP = gamestate.gamestate!.health - ((codeToNumber(card)) - reduction);
+            const newHP = Math.max(gamestate.gamestate!.health - ((codeToNumber(card)) - reduction), 0);
             const newWeapon: Weapon | null = gamestate.gamestate!.weapon !== null ? {
                 ...gamestate.gamestate!.weapon,
                 limitSuite: card[1],
