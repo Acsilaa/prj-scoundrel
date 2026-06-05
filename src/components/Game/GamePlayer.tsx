@@ -32,7 +32,7 @@ export default function GamePlayer() {
                 if (cards[i] === null) nullCount++;
             }
             const newOrder = [...cards];
-            if(nullCount >= 3 && DOC.remaining != 0){
+            if (nullCount >= 3 && DOC.remaining != 0) {
                 const drawn: CardCode[] = (await DOC.draw(Math.min(nullCount, DOC.remaining))).map(c => c.code);
                 let appended = 0;
                 for (let i = 0; i < 4; i++) {
@@ -56,14 +56,14 @@ export default function GamePlayer() {
         init();
     }, [gamestate.gamestate?.currentRoom])
 
-    useEffect(()=>{
-        if(!gamestate.gamestate) return;
-        gamestate.set({...gamestate.gamestate!, remaining: DOC.remaining})
+    useEffect(() => {
+        if (!gamestate.gamestate) return;
+        gamestate.set({ ...gamestate.gamestate!, remaining: DOC.remaining })
     }, [DOC.remaining])
 
     const cardClick = async (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
-        const weaponAndHealChanges: { weapon: Weapon | null, healingCD: number, health: number } = processCardFight(slotCards[slotIdx]);
+        const weaponAndHealChanges: { weapon: Weapon | null, healCooldown: number, health: number } = processCardFight(slotCards[slotIdx]);
         const newCards = [...slotCards];
         newCards[slotIdx] = null;
         setCards([...newCards]);
@@ -75,26 +75,27 @@ export default function GamePlayer() {
             ...weaponAndHealChanges,
         }
 
-        gamestate.set({ ...newGameState });
-
-        saveToLS({ ...newGameState })
-        if(newCards.length <= 2 && DOC.remaining != 0){
+        let cardCount = 4;
+        newCards.forEach(c => c === null ? cardCount-- : null)
+        if (cardCount <= 2 && DOC.remaining != 0) {
             setCanInteract(false);
-            await endRound();
+            await endRound(newGameState);
             setCanInteract(true);
         }
+        gamestate.set({ ...newGameState });
+        saveToLS({ ...newGameState })
     }
 
-    const processCardFight = (card: CardCode): { weapon: Weapon | null, healingCD: number, health: number } => { // TODO WEAPON TOGGLE AND OVERLEVELED ALWAYS BARE HANDED
+    const processCardFight = (card: CardCode): { weapon: Weapon | null, healCooldown: number, health: number } => { // TODO WEAPON TOGGLE
         if (['C', 'S'].includes(card[1])) { // battle
             const gs = gamestate.gamestate!;
-            let reduction = gs.weapon !== null ? 
-                (gs.weapon.limit !== null ? 
-                    (gs.weapon.limit > codeToNumber(card) ? 
-                        Math.min(codeToNumber(card), gs.weapon.limit) : 0) : 
+            let reduction = gs.weapon !== null ?
+                (gs.weapon.limit !== null ?
+                    (gs.weapon.limit > codeToNumber(card) ?
+                        Math.min(codeToNumber(card), gs.weapon.limit) : 0) :
                     Math.min(codeToNumber(card), gs.weapon.strength))
-            : 0;
-
+                : 0;
+            reduction = Math.max(0, reduction);
             const newHP = gamestate.gamestate!.health - ((codeToNumber(card)) - reduction);
             const newWeapon: Weapon | null = gamestate.gamestate!.weapon !== null ? {
                 ...gamestate.gamestate!.weapon,
@@ -104,7 +105,7 @@ export default function GamePlayer() {
 
             return {
                 weapon: newWeapon,
-                healingCD: gamestate.gamestate!.healCooldown, //heal cd stays the same
+                healCooldown: gamestate.gamestate!.healCooldown, //heal cd stays the same
                 health: newHP,
             }
         }
@@ -115,25 +116,53 @@ export default function GamePlayer() {
                     limitSuite: null,
                     strength: codeToNumber(card),
                 },
-                healingCD: gamestate.gamestate!.healCooldown, //heal cd stays the same
+                healCooldown: gamestate.gamestate!.healCooldown, //heal cd stays the same
                 health: gamestate.gamestate!.health,
             }
         }
         // heal
+        console.log(gamestate.gamestate!.healCooldown)
         const canHeal = gamestate.gamestate!.healCooldown == 0;
-        const newHP = gamestate.gamestate!.health + (canHeal ? codeToNumber(card) : 0);
-        const healCD = 1;
+        const newHP = Math.min(gamestate.gamestate!.health + (canHeal ? codeToNumber(card) : 0), 20);
 
         return {
             weapon: gamestate.gamestate!.weapon,
-            healingCD: healCD,
+            healCooldown: 1,
             health: newHP,
         }
 
     }
 
-    const endRound = async () => {
-        
+    const endRound = async (refGameState: GameState) => {
+        refGameState.skipCooldown = Math.max(0, refGameState.skipCooldown - 1);
+        refGameState.healCooldown = Math.max(0, refGameState.healCooldown - 1);
+
+        if (refGameState.skipCooldown == 1) { // skipped, 4 draws max needed
+
+            return;
+        }
+        // normal next round
+        const cards = refGameState.currentRoom;
+        let nullCount = 0;
+        for (let i = 0; i < 4; i++) {
+            if (cards[i] === null) nullCount++;
+        }
+        const newOrder = [...cards];
+        if (nullCount >= 3 && DOC.remaining != 0) {
+            const drawn: CardCode[] = (await DOC.draw(Math.min(nullCount, DOC.remaining))).map(c => c.code);
+            let appended = 0;
+            for (let i = 0; i < 4; i++) {
+                if (newOrder[i] == null) {
+                    newOrder[i] = drawn[appended];
+                    appended++;
+                }
+            }
+        }
+
+        setCards([...newOrder]);
+        refGameState.currentRoom = [...newOrder];
+        refGameState.remaining = DOC.remaining;
+
     }
 
     return <>
