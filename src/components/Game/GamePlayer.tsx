@@ -93,7 +93,7 @@ export default function GamePlayer() {
             let reduction = gs.weapon !== null ?
                 (gs.weapon.limit !== null ?
                     (gs.weapon.limit > codeToNumber(card) ?
-                        Math.min(codeToNumber(card), Math.min(gs.weapon.limit, gs.weapon.strength)) : 0) :
+                        Math.min(codeToNumber(card), gs.weapon.strength) : 0) :
                     Math.min(codeToNumber(card), gs.weapon.strength))
                 : 0;
             reduction = Math.max(0, reduction);
