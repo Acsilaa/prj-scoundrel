@@ -27,7 +27,6 @@ export default function GamePlayer() {
         const init = async () => {
             if (gamestate.gamestate == null) return;
             const cards = gamestate.gamestate!.currentRoom;
-            console.log(cards)
 
             let nullCount = 0;
             for (let i = 0; i < 4; i++) {
@@ -78,7 +77,7 @@ export default function GamePlayer() {
 
         let cardCount = 4;
         newCards.forEach(c => c === null ? cardCount-- : null)
-        if (cardCount <= 2 && DOC.remaining != 0) {
+        if (cardCount < 2 && DOC.remaining != 0) {
             setCanInteract(false);
             await endRound(newGameState);
             setCanInteract(true);
@@ -122,7 +121,6 @@ export default function GamePlayer() {
             }
         }
         // heal
-        console.log(gamestate.gamestate!.healCooldown)
         const canHeal = gamestate.gamestate!.healCooldown == 0;
         const newHP = Math.min(gamestate.gamestate!.health + (canHeal ? codeToNumber(card) : 0), 20);
 
@@ -135,6 +133,7 @@ export default function GamePlayer() {
     }
 
     const endRound = async (refGameState: GameState) => {
+        console.log("here")
         refGameState.skipCooldown = Math.max(0, refGameState.skipCooldown - 1);
         refGameState.healCooldown = Math.max(0, refGameState.healCooldown - 1);
 
@@ -191,6 +190,10 @@ export default function GamePlayer() {
         saveToLS({ ...newGameState })
         setCanInteract(true);
     }
+
+    useEffect(()=>{
+        console.log(gamestate.gamestate?.skipCooldown)
+    }, [gamestate.gamestate?.skipCooldown])
 
     return <>
         <h1 className="text-center text-4xl mb-20">Scoundrel</h1>
