@@ -37,7 +37,7 @@ type DeckState = {
 
 export const useDeckOfCards = create<DeckState>((set, get) => ({
   deckId: null,
-  remaining: 52,
+  remaining: 42,
 
   newDeck: async () => {
     const res = (await rawget(

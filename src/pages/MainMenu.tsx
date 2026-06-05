@@ -26,7 +26,7 @@ export default function MainMenu() {
             health: 20,
             skipCooldown: 0,
             weapon: null,
-            remaining: 52,
+            remaining: 42,
         };
 
         GStateHook.set(newGameState);

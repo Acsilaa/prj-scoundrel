@@ -55,6 +55,11 @@ export default function GamePlayer() {
         init();
     }, [gamestate.gamestate?.currentRoom])
 
+    useEffect(()=>{
+        if(!gamestate.gamestate) return;
+        gamestate.set({...gamestate.gamestate!, remaining: DOC.remaining})
+    }, [DOC.remaining])
+
     const cardClick = (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
         const weaponAndHealChanges: { weapon: Weapon | null, healingCD: number, health: number } = processCardFight(slotCards[slotIdx]);
@@ -121,6 +126,7 @@ export default function GamePlayer() {
             <div className="group relative">
                 <Talon remaining={gamestate.gamestate!.remaining} max={5} ref={talonRef} />
                 <span className={`hidden absolute group-hover:block top-full left-1/2 -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 ? 'text-red-800' : ''}`}>Skip</span>
+                <span className={`hidden absolute group-hover:block top-full left-full -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 ? 'text-red-800' : ''}`}>{gamestate.gamestate?.remaining}</span>
             </div>
             <div className="flex items-center justify-center w-[700px]">
                 <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mr-auto flex items-center justify-center" ref={slot1Ref}>
