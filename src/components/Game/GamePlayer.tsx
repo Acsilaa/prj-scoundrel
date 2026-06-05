@@ -105,7 +105,7 @@ export default function GamePlayer() {
             } : null;
 
             return {
-                weapon: newWeapon,
+                weapon: (newWeapon !== null && newWeapon.limit != 2 ? newWeapon : null),
                 healCooldown: gamestate.gamestate!.healCooldown, //heal cd stays the same
                 health: newHP,
             }
@@ -138,8 +138,16 @@ export default function GamePlayer() {
         refGameState.skipCooldown = Math.max(0, refGameState.skipCooldown - 1);
         refGameState.healCooldown = Math.max(0, refGameState.healCooldown - 1);
 
-        if (refGameState.skipCooldown == 1) { // skipped, 4 draws max needed
+        if (refGameState.skipCooldown == 1) { // skipped
+            // put back the cards to bottom
+            const cardsToPutBack: CardCode[] = [];
+            gamestate.gamestate!.currentRoom.forEach(c => c !== null ? cardsToPutBack.push(c) : null);
+            const {remaining} = await DOC.toBottom(cardsToPutBack);
+            // draw more
+            const res = await DOC.draw(Math.min(remaining, 4))
 
+            refGameState.currentRoom = res.cards.map(c => c.code);
+            refGameState.remaining = res.remaining;
             return;
         }
         // normal next round
@@ -166,12 +174,29 @@ export default function GamePlayer() {
         refGameState.currentRoom = [...newOrder];
     }
 
+    const trySkip = async () => {
+        if(gamestate.gamestate!.skipCooldown != 0 || DOC.remaining == 0) return;
+        const newGameState: GameState = {
+            ...gamestate.gamestate!,
+            skipCooldown: 2,
+        }
+
+        setCanInteract(false);
+        await endRound(newGameState);
+        setCanInteract(true);
+
+        setCards(newGameState.currentRoom)
+
+        gamestate.set({ ...newGameState });
+        saveToLS({ ...newGameState })
+    }
+
     return <>
         <h1 className="text-center text-4xl mb-20">Scoundrel</h1>
         <div className="w-8/12 mx-auto flex items-center justify-between">
             <div className="group relative">
-                <Talon remaining={gamestate.gamestate!.remaining} max={5} ref={talonRef} />
-                <span className={`hidden absolute group-hover:block top-full left-1/2 -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 ? 'text-red-800' : ''}`}>Skip</span>
+                <Talon remaining={gamestate.gamestate!.remaining} max={5} ref={talonRef} onClick={trySkip} />
+                <span className={`hidden absolute group-hover:block top-full left-1/2 -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 || DOC.remaining == 0 ? 'text-red-800' : ''}`}>Skip</span>
                 <span className={`hidden absolute group-hover:block top-full left-full -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 ? 'text-red-800' : ''}`}>{gamestate.gamestate?.remaining}</span>
             </div>
             <div className="flex items-center justify-center w-[700px]">

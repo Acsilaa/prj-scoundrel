@@ -32,7 +32,7 @@ type DeckState = {
   remaining: number;
   newDeck: () => Promise<void>;
   draw: (amount: number) => Promise<{ cards: CardDraw[]; remaining: number }>;
-  toBottom: (cardCodes: CardCode[]) => Promise<void>;
+  toBottom: (cardCodes: CardCode[]) => Promise<{remaining: number}>;
 };
 
 export const useDeckOfCards = create<DeckState>((set, get) => ({
@@ -80,7 +80,6 @@ export const useDeckOfCards = create<DeckState>((set, get) => ({
 
   toBottom: async (cardCodes: CardCode[]) => {
     const deckId = get().deckId;
-    if (!deckId) return;
 
     const res = await rawget(
       `deck/${deckId}/return/?cards=${cardCodes.join(",")}`
@@ -89,5 +88,6 @@ export const useDeckOfCards = create<DeckState>((set, get) => ({
     set({
       remaining: res.remaining,
     });
+    return {remaining: res.remaining}
   },
 }));
