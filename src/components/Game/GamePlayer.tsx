@@ -71,7 +71,7 @@ export default function GamePlayer() {
 
         const newGameState: GameState = {
             ...gamestate.gamestate!,
-            skipCooldown: 1, // cant skit this room anymore
+            skipCooldown: Math.max(1, gamestate.gamestate!.skipCooldown), // cant skip this room anymore
             currentRoom: [...newCards], // update the room
             ...weaponAndHealChanges,
         }
@@ -183,12 +183,12 @@ export default function GamePlayer() {
 
         setCanInteract(false);
         await endRound(newGameState);
-        setCanInteract(true);
-
+        
         setCards(newGameState.currentRoom)
-
+        
         gamestate.set({ ...newGameState });
         saveToLS({ ...newGameState })
+        setCanInteract(true);
     }
 
     return <>
