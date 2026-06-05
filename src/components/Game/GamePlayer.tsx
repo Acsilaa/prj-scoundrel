@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type JSX } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameState } from "../../App";
 import PlayingCard from "../PlayingCard/PlayingCard";
 import Talon from "../PlayingCard/Talon";
 import type { CardCode, Weapon } from "../../types/types";
-import { useDeckOfCards } from "../../lib/deckofcards";
+import { useDeckOfCards, type CardDraw } from "../../lib/deckofcards";
 import WeaponDisplay from "./WeaponDisplay";
 import { saveToLS, type GameState } from "../../lib/localstorage";
 import { codeToNumber } from "../../lib/converter";
@@ -18,10 +18,12 @@ export default function GamePlayer() {
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
     const [canInteract, setCanInteract] = useState(false);
     const DOC = useDeckOfCards();
-    const [didInit, setDidInit] = useState(false);
+    const didInitRef = useRef(false);
 
     useEffect(() => {
-        if (didInit) return;
+        if (didInitRef.current) return;
+        didInitRef.current = true;
+        
         const init = async () => {
             if (gamestate.gamestate == null) return;
             const cards = gamestate.gamestate!.currentRoom;
@@ -32,8 +34,11 @@ export default function GamePlayer() {
                 if (cards[i] === null) nullCount++;
             }
             const newOrder = [...cards];
-            if (nullCount >= 3 && DOC.remaining != 0) {
-                const drawn: CardCode[] = (await DOC.draw(Math.min(nullCount, DOC.remaining))).map(c => c.code);
+            let remainingAfterDraw = gamestate.gamestate!.remaining;
+            if (nullCount >= 3 && remainingAfterDraw != 0) {
+                const drawResult = await DOC.draw(Math.min(nullCount, remainingAfterDraw));
+                const drawn: CardCode[] = drawResult.cards.map((c: CardDraw) => c.code);
+                remainingAfterDraw = drawResult.remaining;
                 let appended = 0;
                 for (let i = 0; i < 4; i++) {
                     if (newOrder[i] == null) {
@@ -45,21 +50,17 @@ export default function GamePlayer() {
 
             setCards([...newOrder]);
             setCanInteract(true);
-            setDidInit(true);
-            saveToLS({
+            const updatedGameState = {
                 ...gamestate.gamestate!,
                 currentRoom: newOrder,
-                remaining: DOC.remaining,
-            })
+                remaining: remainingAfterDraw,
+            };
+            gamestate.set(updatedGameState);
+            saveToLS(updatedGameState);
             return;
         }
         init();
-    }, [gamestate.gamestate?.currentRoom])
-
-    useEffect(() => {
-        if (!gamestate.gamestate) return;
-        gamestate.set({ ...gamestate.gamestate!, remaining: DOC.remaining })
-    }, [DOC.remaining])
+    }, [])
 
     const cardClick = async (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
@@ -148,8 +149,9 @@ export default function GamePlayer() {
             if (cards[i] === null) nullCount++;
         }
         const newOrder = [...cards];
-        if (nullCount >= 3 && DOC.remaining != 0) {
-            const drawn: CardCode[] = (await DOC.draw(Math.min(nullCount, DOC.remaining))).map(c => c.code);
+        if (nullCount >= 3 && refGameState.remaining != 0) {
+            const drawResult = await DOC.draw(Math.min(nullCount, refGameState.remaining));
+            const drawn: CardCode[] = drawResult.cards.map((c: CardDraw) => c.code);
             let appended = 0;
             for (let i = 0; i < 4; i++) {
                 if (newOrder[i] == null) {
@@ -157,12 +159,11 @@ export default function GamePlayer() {
                     appended++;
                 }
             }
+            refGameState.remaining = drawResult.remaining;
         }
 
         setCards([...newOrder]);
         refGameState.currentRoom = [...newOrder];
-        refGameState.remaining = DOC.remaining;
-
     }
 
     return <>

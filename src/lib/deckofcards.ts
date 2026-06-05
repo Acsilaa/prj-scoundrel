@@ -31,7 +31,7 @@ type DeckState = {
   deckId: string | null;
   remaining: number;
   newDeck: () => Promise<void>;
-  draw: (amount: number) => Promise<CardDraw[]>;
+  draw: (amount: number) => Promise<{ cards: CardDraw[]; remaining: number }>;
   toBottom: (cardCodes: CardCode[]) => Promise<void>;
 };
 
@@ -75,7 +75,7 @@ export const useDeckOfCards = create<DeckState>((set, get) => ({
       remaining: res.remaining,
     });
 
-    return res.cards;
+    return { cards: res.cards, remaining: res.remaining };
   },
 
   toBottom: async (cardCodes: CardCode[]) => {
