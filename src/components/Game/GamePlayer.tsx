@@ -172,6 +172,7 @@ export default function GamePlayer() {
         }
 
         setCards([...newOrder]);
+        refGameState.health = Math.max(refGameState.health, 0)
         refGameState.currentRoom = [...newOrder];
     }
 

@@ -5,6 +5,10 @@ import PlayingCard from "../PlayingCard/PlayingCard";
 export default function HealthDisplayer ({health}:{health: number|undefined}){
     if(health === undefined) return null;
 
+    if(health == 0) return <div className="h-[200px] w-36 bg-black/50 shadow-lg shadow-black relative flex items-center justify-center">
+        <PlayingCard interactable={false} cardCode={`X1` as CardCode} />
+    </div>
+
     return <div className="h-[200px] w-36 bg-black/50 shadow-lg shadow-black relative flex items-center justify-center">
         <PlayingCard interactable={false} cardCode={`${numberToLetter(Math.min(health,14))}H` as CardCode} />
         {health > 14 && 
