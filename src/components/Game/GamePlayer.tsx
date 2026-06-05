@@ -144,6 +144,7 @@ export default function GamePlayer() {
             gamestate.gamestate!.currentRoom.forEach(c => c !== null ? cardsToPutBack.push(c) : null);
             const {remaining} = await DOC.toBottom(cardsToPutBack);
             // draw more
+            setCards([null, null, null, null])
             const res = await DOC.draw(Math.min(remaining, 4))
 
             refGameState.currentRoom = res.cards.map(c => c.code);
@@ -158,6 +159,7 @@ export default function GamePlayer() {
         }
         const newOrder = [...cards];
         if (nullCount >= 3 && refGameState.remaining != 0) {
+            setCards([null, null, null, null])
             const drawResult = await DOC.draw(Math.min(nullCount, refGameState.remaining));
             const drawn: CardCode[] = drawResult.cards.map((c: CardDraw) => c.code);
             let appended = 0;
