@@ -93,7 +93,7 @@ export default function GamePlayer() {
             let reduction = gs.weapon !== null ?
                 (gs.weapon.limit !== null ?
                     (gs.weapon.limit > codeToNumber(card) ?
-                        Math.min(codeToNumber(card), gs.weapon.limit) : 0) :
+                        Math.min(codeToNumber(card), Math.min(gs.weapon.limit, gs.weapon.strength)) : 0) :
                     Math.min(codeToNumber(card), gs.weapon.strength))
                 : 0;
             reduction = Math.max(0, reduction);
@@ -159,7 +159,6 @@ export default function GamePlayer() {
         }
         const newOrder = [...cards];
         if (nullCount >= 3 && refGameState.remaining != 0) {
-            setCards([null, null, null, null])
             const drawResult = await DOC.draw(Math.min(nullCount, refGameState.remaining));
             const drawn: CardCode[] = drawResult.cards.map((c: CardDraw) => c.code);
             let appended = 0;
