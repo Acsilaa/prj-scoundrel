@@ -6,6 +6,7 @@ import type { CardCode, Weapon } from "../../types/types";
 import { useDeckOfCards } from "../../lib/deckofcards";
 import WeaponDisplay from "./WeaponDisplay";
 import { saveToLS, type GameState } from "../../lib/localstorage";
+import { codeToNumber } from "../../lib/converter";
 
 export default function GamePlayer() {
     const talonRef = useRef<HTMLDivElement>(null);
@@ -83,11 +84,11 @@ export default function GamePlayer() {
         if (['C', 'S'].includes(card[1])) { // battle
 
             const reduction = (gamestate.gamestate!.weapon?.limit ?? 1) - 1;
-            const newHP = gamestate.gamestate!.health - (Number(card[0]) - reduction);
+            const newHP = gamestate.gamestate!.health - ((codeToNumber(card)) - reduction);
             const newWeapon: Weapon | null = gamestate.gamestate!.weapon !== null ? {
                 ...gamestate.gamestate!.weapon,
                 limitSuite: card[1],
-                limit: Math.min((gamestate.gamestate!.weapon.limit ?? 14), Number(card[0]))
+                limit: Math.min((gamestate.gamestate!.weapon.limit ?? 14), codeToNumber(card)),
             } : null;
 
             return {
@@ -101,7 +102,7 @@ export default function GamePlayer() {
                 weapon: {
                     limit: null,
                     limitSuite: null,
-                    strength: Number(card[0]),
+                    strength: codeToNumber(card),
                 },
                 healingCD: gamestate.gamestate!.healCooldown, //heal cd stays the same
                 health: gamestate.gamestate!.health,
@@ -109,7 +110,7 @@ export default function GamePlayer() {
         }
         // heal
         const canHeal = gamestate.gamestate!.healCooldown == 0;
-        const newHP = gamestate.gamestate!.health + (canHeal ? Number(card[0]) : 0);
+        const newHP = gamestate.gamestate!.health + (canHeal ? codeToNumber(card) : 0);
         const healCD = 1;
 
         return {
