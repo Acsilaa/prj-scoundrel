@@ -7,6 +7,7 @@ import { useDeckOfCards, type CardDraw } from "../../lib/deckofcards";
 import WeaponDisplay from "./WeaponDisplay";
 import { saveToLS, type GameState } from "../../lib/localstorage";
 import { codeToNumber } from "../../lib/converter";
+import HealthDisplayer from "./HealthDisplayer";
 
 export default function GamePlayer() {
     const talonRef = useRef<HTMLDivElement>(null);
@@ -220,7 +221,7 @@ export default function GamePlayer() {
         </div>
         <div className="w-8/12 grid [grid-template-areas:'a_a_b_b_c_c'_'a_a_b_b_c_c'] mx-auto content-center place-items-center mt-32">
             <div style={{ gridArea: 'a' }}>
-                <span>{gamestate.gamestate!.health}</span>
+                <HealthDisplayer health={gamestate.gamestate?.health} />
             </div>
             <div style={{ gridArea: 'b' }}>
                 <WeaponDisplay weapon={gamestate.gamestate!.weapon} />
