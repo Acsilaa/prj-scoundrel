@@ -32,8 +32,8 @@ export default function GamePlayer() {
                 if (cards[i] === null) nullCount++;
             }
             const newOrder = [...cards];
-            if(nullCount >= 3){
-                const drawn: CardCode[] = (await DOC.draw(nullCount)).map(c => c.code);
+            if(nullCount >= 3 && DOC.remaining != 0){
+                const drawn: CardCode[] = (await DOC.draw(Math.min(nullCount, DOC.remaining))).map(c => c.code);
                 let appended = 0;
                 for (let i = 0; i < 4; i++) {
                     if (newOrder[i] == null) {
@@ -61,7 +61,7 @@ export default function GamePlayer() {
         gamestate.set({...gamestate.gamestate!, remaining: DOC.remaining})
     }, [DOC.remaining])
 
-    const cardClick = (slotIdx: number) => {
+    const cardClick = async (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
         const weaponAndHealChanges: { weapon: Weapon | null, healingCD: number, health: number } = processCardFight(slotCards[slotIdx]);
         const newCards = [...slotCards];
@@ -78,12 +78,23 @@ export default function GamePlayer() {
         gamestate.set({ ...newGameState });
 
         saveToLS({ ...newGameState })
+        if(newCards.length <= 2 && DOC.remaining != 0){
+            setCanInteract(false);
+            await endRound();
+            setCanInteract(true);
+        }
     }
 
-    const processCardFight = (card: CardCode): { weapon: Weapon | null, healingCD: number, health: number } => { // TODO FACE CARD PARSE!!!
+    const processCardFight = (card: CardCode): { weapon: Weapon | null, healingCD: number, health: number } => { // TODO WEAPON TOGGLE AND OVERLEVELED ALWAYS BARE HANDED
         if (['C', 'S'].includes(card[1])) { // battle
+            const gs = gamestate.gamestate!;
+            let reduction = gs.weapon !== null ? 
+                (gs.weapon.limit !== null ? 
+                    (gs.weapon.limit > codeToNumber(card) ? 
+                        Math.min(codeToNumber(card), gs.weapon.limit) : 0) : 
+                    Math.min(codeToNumber(card), gs.weapon.strength))
+            : 0;
 
-            const reduction = (gamestate.gamestate!.weapon?.limit ?? 1) - 1;
             const newHP = gamestate.gamestate!.health - ((codeToNumber(card)) - reduction);
             const newWeapon: Weapon | null = gamestate.gamestate!.weapon !== null ? {
                 ...gamestate.gamestate!.weapon,
@@ -119,6 +130,10 @@ export default function GamePlayer() {
             health: newHP,
         }
 
+    }
+
+    const endRound = async () => {
+        
     }
 
     return <>
