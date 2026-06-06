@@ -15,11 +15,18 @@ export default function GamePlayer() {
     const slot2Ref = useRef<HTMLDivElement>(null);
     const slot3Ref = useRef<HTMLDivElement>(null);
     const slot4Ref = useRef<HTMLDivElement>(null);
+    const [attackMode, setAttackMode] = useState<"Weapon"|"Hands">("Hands");
     const gamestate = useGameState();
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
     const [canInteract, setCanInteract] = useState(false);
     const DOC = useDeckOfCards();
     const didInitRef = useRef(false);
+
+    useEffect(()=>{
+        if(gamestate.gamestate == null) return;
+        setAttackMode(gamestate.gamestate?.weapon ? "Weapon" : "Hands")
+
+    }, [gamestate.gamestate?.weapon])
 
     useEffect(() => {
         if (didInitRef.current) return;
@@ -209,10 +216,10 @@ export default function GamePlayer() {
                 <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mr-auto flex items-center justify-center" ref={slot1Ref}>
                     {slotCards[0] ? <PlayingCard interactable cardCode={slotCards[0]} onClick={() => { cardClick(0) }} /> : null}
                 </div>
-                <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center justify-center" ref={slot2Ref}>
+                <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center" ref={slot2Ref}>
                     {slotCards[1] ? <PlayingCard interactable cardCode={slotCards[1]} onClick={() => { cardClick(1) }} /> : null}
                 </div>
-                <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center justify-center" ref={slot3Ref}>
+                <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center" ref={slot3Ref}>
                     {slotCards[2] ? <PlayingCard interactable cardCode={slotCards[2]} onClick={() => { cardClick(2) }} /> : null}
                 </div>
                 <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 ml-auto flex items-center justify-center" ref={slot4Ref}>
@@ -225,7 +232,13 @@ export default function GamePlayer() {
                 <HealthDisplayer health={gamestate.gamestate?.health} />
             </div>
             <div style={{ gridArea: 'b' }}>
-                <WeaponDisplay weapon={gamestate.gamestate!.weapon} />
+                <WeaponDisplay weapon={gamestate.gamestate!.weapon} attackMode={attackMode} onClick={()=>{
+                    if(!gamestate.gamestate?.weapon){
+                        setAttackMode("Hands")
+                        return;
+                    }
+                    setAttackMode(p => p == "Hands" ? "Weapon" : "Hands");
+                }} />
             </div>
             <div style={{ gridArea: 'c' }}>
                 {/* empty */}
