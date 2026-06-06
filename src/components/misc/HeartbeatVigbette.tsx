@@ -17,14 +17,14 @@ export default function HeartbeatVignette({ health }: { health: number }) {
         Dire: {
             opacity: 1,
             intensity: 0.6,
-            scale: 1.15,
+            scale: 1.4,
             heartbeat: "1s",
         },
 
         Critical: {
             opacity: 1,
             intensity: 0.9,
-            scale: 1.2,
+            scale: 1.4,
             heartbeat: "0.75s",
         },
     }[healthState];
