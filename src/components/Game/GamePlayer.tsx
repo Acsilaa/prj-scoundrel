@@ -208,6 +208,4 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             </div>
         </div>
     </>
-
-
 }

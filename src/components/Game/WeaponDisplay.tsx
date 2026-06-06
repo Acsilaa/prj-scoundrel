@@ -12,8 +12,8 @@ export default function WeaponDisplay({ weapon, onClick, attackMode }: { weapon:
         {weapon.limit !== null ? 
         <PlayingCard interactable={false} cardCode={`${numberToLetter(weapon.limit)}${weapon.limitSuite}` as CardCode} className="absolute left-6 top-5" />
          : null}
-        {attackMode == "Hands" && <div className="absolute w-full h-full flex items-center justify-center top-0 left-0 bg-black/30 backdrop-blur-[2px]">
-            <img src="/fist.svg" width={50} />
+        {attackMode == "Hands" && <div className="absolute w-full h-full origin-center scale-125 rounded-md flex items-center justify-center top-0 left-0 bg-black/30 backdrop-blur-[2px]">
+            <img src="/fist.svg" width={50} className="scale-90" />
         </div> }
     </div>
 }
