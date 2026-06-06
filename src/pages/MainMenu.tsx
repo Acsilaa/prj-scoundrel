@@ -2,6 +2,7 @@ import { useGameState, usePage } from "../App";
 import { loadFromLS, saveToLS } from "../lib/localstorage";
 import Game from "./GameWrapper";
 import { useDeckOfCards } from "../lib/deckofcards"; // 👈 zustand store
+import { useEffect } from "react";
 
 export default function MainMenu() {
     const lStoreContent = localStorage.getItem("savedgame");
@@ -11,6 +12,31 @@ export default function MainMenu() {
     const GStateHook = useGameState();
 
     const newDeck = useDeckOfCards((s) => s.newDeck);
+    useEffect(() => {
+        const suits = ["S", "H", "D", "C"];
+        const values = [
+            "A",
+            "2", "3", "4", "5", "6", "7", "8", "9", "0",
+            "J", "Q", "K"
+        ];
+
+        const images: HTMLImageElement[] = [];
+
+        for (const suit of suits) {
+            for (const value of values) {
+                const img = new Image();
+                img.src = `https://deckofcardsapi.com/static/img/${value}${suit}.png`;
+                images.push(img);
+            }
+        }
+
+        // optional: preload joker images too
+        ["X1", "X2"].forEach(card => {
+            const img = new Image();
+            img.src = `https://deckofcardsapi.com/static/img/${card}.png`;
+            images.push(img);
+        });
+    }, []);
 
     const startNewGame = async () => {
         // init deck via zustand store
