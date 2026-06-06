@@ -10,6 +10,7 @@ import HealthDisplayer from "./HealthDisplayer";
 import { processCardFight } from "../../util/gameplay";
 
 import HeartbeatVignette from "../misc/HeartbeatVigbette";
+import GameEndDisplayer from "./GameEndedDisplayer";
 
 export default function GamePlayer({ durationExpired }: { durationExpired: boolean }) {
     const talonRef = useRef<HTMLDivElement>(null);
@@ -20,6 +21,7 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
     const [attackMode, setAttackMode] = useState<"Weapon" | "Hands">("Hands");
     const gamestate = useGameState();
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
+    const [gameEnded, setGameEnded] = useState<"defeat" | "victory" | null>(null);
     const [canInteract, setCanInteract] = useState(false);
     const DOC = useDeckOfCards();
     const didInitRef = useRef(false);
@@ -57,6 +59,9 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
                 }
             }
 
+            let realcards = 0;
+            newOrder.forEach(c => c == null ? null : realcards++);
+
             setCards([...newOrder]);
             setCanInteract(true);
             const updatedGameState = {
@@ -66,6 +71,15 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             };
             gamestate.set(updatedGameState);
             saveToLS(updatedGameState);
+
+            if (realcards == 1 && DOC.remaining == 0) {
+                setGameEnded("victory");
+                setCanInteract(false)
+            }
+            if (gamestate.gamestate!.health == 0) {
+                setGameEnded("defeat");
+                setCanInteract(false)
+            }
             return;
         }
         init();
@@ -75,7 +89,8 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
 
     const cardClick = async (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
-        const weaponAndHealChanges: { weapon: Weapon | null, healCooldown: number, health: number } = processCardFight(slotCards[slotIdx], gamestate.gamestate!, attackMode);
+        const weaponAndHealChanges: { weapon: Weapon | null, healCooldown: number, health: number } =
+            processCardFight(slotCards[slotIdx], gamestate.gamestate!, attackMode);
         const newCards = [...slotCards];
         newCards[slotIdx] = null;
         setCards([...newCards]);
@@ -93,6 +108,16 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             setCanInteract(false);
             await endRound(newGameState);
             setCanInteract(true);
+        }
+        if (newGameState.health == 0) { // lose
+            setGameEnded("defeat");
+            setCanInteract(false);
+
+        }
+        if (cardCount == 1 && DOC.remaining == 0) { // win
+            setGameEnded("victory")
+            setCanInteract(false);
+
         }
         gamestate.set({ ...newGameState });
         saveToLS({ ...newGameState })
@@ -164,8 +189,8 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
     }, [gamestate.gamestate?.skipCooldown])
 
     return <>
-    <HeartbeatVignette health={gamestate.gamestate!.health} />
-        
+        <HeartbeatVignette health={gamestate.gamestate!.health} />
+
         <div className={`mx-auto py-[5%] w-10/12 duration-500 -translate-x-full ${durationExpired ? 'translate-x-0' : ''}`}>
             <h1 className="text-center text-4xl mb-20">Scoundrel</h1>
             <div className="w-8/12 mx-auto flex items-center justify-between">
@@ -207,5 +232,7 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
                 </div>
             </div>
         </div>
+
+        <GameEndDisplayer gameEnded={gameEnded} />
     </>
 }
