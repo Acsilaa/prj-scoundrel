@@ -8,6 +8,7 @@ import WeaponDisplay from "./WeaponDisplay";
 import { saveToLS, type GameState } from "../../lib/localstorage";
 import { codeToNumber } from "../../lib/converter";
 import HealthDisplayer from "./HealthDisplayer";
+import { processCardFight } from "../../util/gameplay";
 
 export default function GamePlayer() {
     const talonRef = useRef<HTMLDivElement>(null);
@@ -71,7 +72,7 @@ export default function GamePlayer() {
 
     const cardClick = async (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
-        const weaponAndHealChanges: { weapon: Weapon | null, healCooldown: number, health: number } = processCardFight(slotCards[slotIdx]);
+        const weaponAndHealChanges: { weapon: Weapon | null, healCooldown: number, health: number } = processCardFight(slotCards[slotIdx], gamestate.gamestate!, attackMode);
         const newCards = [...slotCards];
         newCards[slotIdx] = null;
         setCards([...newCards]);
@@ -94,59 +95,9 @@ export default function GamePlayer() {
         saveToLS({ ...newGameState })
     }
 
-    const processCardFight = (card: CardCode): { weapon: Weapon | null, healCooldown: number, health: number } => {
-        if (['C', 'S'].includes(card[1])) { // battle
-            const gs = gamestate.gamestate!;
-            let reduction = gs.weapon !== null && attackMode == "Weapon" ?
-                (gs.weapon.limit !== null ?
-                    (gs.weapon.limit > codeToNumber(card) ?
-                        Math.min(codeToNumber(card), gs.weapon.strength) : 0) :
-                    Math.min(codeToNumber(card), gs.weapon.strength))
-                : 0;
-            reduction = Math.max(0, reduction);
-            const newHP = Math.max(gamestate.gamestate!.health - ((codeToNumber(card)) - reduction), 0);
-            let newWeapon: Weapon | null;
-            if (attackMode == "Weapon") {
-                newWeapon = gamestate.gamestate!.weapon !== null ? {
-                    ...gamestate.gamestate!.weapon,
-                    limitSuite: card[1],
-                    limit: Math.min((gamestate.gamestate!.weapon.limit ?? 14), codeToNumber(card)),
-                } : null;
-            } else {
-                newWeapon = gamestate.gamestate!.weapon;
-            }
-
-            return {
-                weapon: (newWeapon !== null && newWeapon.limit != 2 ? newWeapon : null),
-                healCooldown: gamestate.gamestate!.healCooldown, //heal cd stays the same
-                health: newHP,
-            }
-        }
-        if (card[1] == "D") { // weapon
-            return {
-                weapon: {
-                    limit: null,
-                    limitSuite: null,
-                    strength: codeToNumber(card),
-                },
-                healCooldown: gamestate.gamestate!.healCooldown, //heal cd stays the same
-                health: gamestate.gamestate!.health,
-            }
-        }
-        // heal
-        const canHeal = gamestate.gamestate!.healCooldown == 0;
-        const newHP = Math.min(gamestate.gamestate!.health + (canHeal ? codeToNumber(card) : 0), 20);
-
-        return {
-            weapon: gamestate.gamestate!.weapon,
-            healCooldown: 1,
-            health: newHP,
-        }
-
-    }
+    
 
     const endRound = async (refGameState: GameState) => {
-        console.log("here")
         refGameState.skipCooldown = Math.max(0, refGameState.skipCooldown - 1);
         refGameState.healCooldown = Math.max(0, refGameState.healCooldown - 1);
 
