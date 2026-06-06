@@ -14,11 +14,6 @@ import GameEndDisplayer from "./GameEndedDisplayer";
 import { codeToNumber } from "../../lib/converter";
 
 export default function GamePlayer({ durationExpired }: { durationExpired: boolean }) {
-    const talonRef = useRef<HTMLDivElement>(null);
-    const slot1Ref = useRef<HTMLDivElement>(null);
-    const slot2Ref = useRef<HTMLDivElement>(null);
-    const slot3Ref = useRef<HTMLDivElement>(null);
-    const slot4Ref = useRef<HTMLDivElement>(null);
     const [attackMode, setAttackMode] = useState<"Weapon" | "Hands">("Hands");
     const gamestate = useGameState();
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
@@ -214,21 +209,21 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             <h1 className="text-center text-4xl mb-20">Scoundrel</h1>
             <div className="w-8/12 mx-auto flex items-center justify-between">
                 <div className="group relative">
-                    <Talon remaining={gamestate.gamestate!.remaining} max={5} ref={talonRef} onClick={trySkip} />
+                    <Talon remaining={gamestate.gamestate!.remaining} max={5} onClick={trySkip} />
                     <span className={`hidden absolute group-hover:block top-full left-1/2 -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 || DOC.remaining == 0 ? 'text-red-800' : ''}`}>Skip</span>
                     <span className={`hidden absolute group-hover:block top-full left-full -translate-x-1/2 translate-y-2 ${gamestate.gamestate!.skipCooldown != 0 ? 'text-red-800' : ''}`}>{gamestate.gamestate?.remaining}</span>
                 </div>
                 <div className="flex items-center justify-center w-[700px]">
-                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mr-auto flex items-center justify-center" ref={slot1Ref}>
+                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mr-auto flex items-center justify-center">
                         {slotCards[0] ? <PlayingCard interactable cardCode={slotCards[0]} onClick={() => { cardClick(0) }} /> : null}
                     </div>
-                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center" ref={slot2Ref}>
+                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center">
                         {slotCards[1] ? <PlayingCard interactable cardCode={slotCards[1]} onClick={() => { cardClick(1) }} /> : null}
                     </div>
-                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center" ref={slot3Ref}>
+                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center">
                         {slotCards[2] ? <PlayingCard interactable cardCode={slotCards[2]} onClick={() => { cardClick(2) }} /> : null}
                     </div>
-                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 ml-auto flex items-center justify-center" ref={slot4Ref}>
+                    <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 ml-auto flex items-center justify-center">
                         {slotCards[3] ? <PlayingCard interactable cardCode={slotCards[3]} onClick={() => { cardClick(3) }} /> : null}
                     </div>
                 </div>
