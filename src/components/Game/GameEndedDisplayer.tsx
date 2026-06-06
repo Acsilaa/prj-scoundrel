@@ -89,7 +89,7 @@ export default function GameEndDisplayer({
                         ? "opacity-100 translate-y-0 scale-100"
                         : "opacity-0 translate-y-10 scale-95",
                 ].join(" ")}>
-                {gameEnded == "defeat" &&
+                {gameEnded == "victory" &&
                     <div className="py-14">
                         <p className="text-4xl text-center">🏆</p>
                         <h2 className="text-4xl mb-4 text-center">Victory</h2>
