@@ -7,7 +7,7 @@ export default function WeaponDisplay({ weapon, onClick, attackMode }: { weapon:
         <img src="/fist.svg" width={50} />
     </div>;
 
-    return <div className="bg-black/50 shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center relative" onClick={onClick}>
+    return <div className="bg-black/50 cursor-pointer shadow-lg shadow-black h-[200px] w-36 mx-auto flex items-center rounded-md  justify-center relative" onClick={onClick}>
         <PlayingCard interactable={false} cardCode={`${numberToLetter(weapon.strength)}D` as CardCode} className="" />
         {weapon.limit !== null ? 
         <PlayingCard interactable={false} cardCode={`${numberToLetter(weapon.limit)}${weapon.limitSuite}` as CardCode} className="absolute left-6 top-5" />
