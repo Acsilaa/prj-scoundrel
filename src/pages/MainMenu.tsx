@@ -3,6 +3,7 @@ import { loadFromLS, saveToLS } from "../lib/localstorage";
 import Game from "./GameWrapper";
 import { useDeckOfCards } from "../lib/deckofcards"; // 👈 zustand store
 import { useEffect } from "react";
+import UIExplainer from "./UIExplainer";
 
 export default function MainMenu() {
     const lStoreContent = localStorage.getItem("savedgame");
@@ -100,6 +101,9 @@ export default function MainMenu() {
                         →
                     </span>
                 </button>
+            </div>
+            <div className="flex items-center justify-center">
+                <a href="#" className="mx-auto text-gray-400 underline " onClick={() => { pagehook.set(<UIExplainer />) }}>UI explanation</a>
             </div>
         </div>
     );
