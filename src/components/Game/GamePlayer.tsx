@@ -15,15 +15,15 @@ export default function GamePlayer() {
     const slot2Ref = useRef<HTMLDivElement>(null);
     const slot3Ref = useRef<HTMLDivElement>(null);
     const slot4Ref = useRef<HTMLDivElement>(null);
-    const [attackMode, setAttackMode] = useState<"Weapon"|"Hands">("Hands");
+    const [attackMode, setAttackMode] = useState<"Weapon" | "Hands">("Hands");
     const gamestate = useGameState();
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
     const [canInteract, setCanInteract] = useState(false);
     const DOC = useDeckOfCards();
     const didInitRef = useRef(false);
 
-    useEffect(()=>{
-        if(gamestate.gamestate == null) return;
+    useEffect(() => {
+        if (gamestate.gamestate == null) return;
         setAttackMode(gamestate.gamestate?.weapon ? "Weapon" : "Hands")
 
     }, [gamestate.gamestate?.weapon])
@@ -31,7 +31,7 @@ export default function GamePlayer() {
     useEffect(() => {
         if (didInitRef.current) return;
         didInitRef.current = true;
-        
+
         const init = async () => {
             if (gamestate.gamestate == null) return;
             const cards = gamestate.gamestate!.currentRoom;
@@ -94,10 +94,10 @@ export default function GamePlayer() {
         saveToLS({ ...newGameState })
     }
 
-    const processCardFight = (card: CardCode): { weapon: Weapon | null, healCooldown: number, health: number } => { // TODO WEAPON TOGGLE
+    const processCardFight = (card: CardCode): { weapon: Weapon | null, healCooldown: number, health: number } => {
         if (['C', 'S'].includes(card[1])) { // battle
             const gs = gamestate.gamestate!;
-            let reduction = gs.weapon !== null ?
+            let reduction = gs.weapon !== null && attackMode == "Weapon" ?
                 (gs.weapon.limit !== null ?
                     (gs.weapon.limit > codeToNumber(card) ?
                         Math.min(codeToNumber(card), gs.weapon.strength) : 0) :
@@ -105,11 +105,16 @@ export default function GamePlayer() {
                 : 0;
             reduction = Math.max(0, reduction);
             const newHP = Math.max(gamestate.gamestate!.health - ((codeToNumber(card)) - reduction), 0);
-            const newWeapon: Weapon | null = gamestate.gamestate!.weapon !== null ? {
-                ...gamestate.gamestate!.weapon,
-                limitSuite: card[1],
-                limit: Math.min((gamestate.gamestate!.weapon.limit ?? 14), codeToNumber(card)),
-            } : null;
+            let newWeapon: Weapon | null;
+            if (attackMode == "Weapon") {
+                newWeapon = gamestate.gamestate!.weapon !== null ? {
+                    ...gamestate.gamestate!.weapon,
+                    limitSuite: card[1],
+                    limit: Math.min((gamestate.gamestate!.weapon.limit ?? 14), codeToNumber(card)),
+                } : null;
+            } else {
+                newWeapon = gamestate.gamestate!.weapon;
+            }
 
             return {
                 weapon: (newWeapon !== null && newWeapon.limit != 2 ? newWeapon : null),
@@ -149,7 +154,7 @@ export default function GamePlayer() {
             // put back the cards to bottom
             const cardsToPutBack: CardCode[] = [];
             gamestate.gamestate!.currentRoom.forEach(c => c !== null ? cardsToPutBack.push(c) : null);
-            const {remaining} = await DOC.toBottom(cardsToPutBack);
+            const { remaining } = await DOC.toBottom(cardsToPutBack);
             // draw more
             setCards([null, null, null, null])
             const res = await DOC.draw(Math.min(remaining, 4))
@@ -184,7 +189,7 @@ export default function GamePlayer() {
     }
 
     const trySkip = async () => {
-        if(gamestate.gamestate!.skipCooldown != 0 || DOC.remaining == 0) return;
+        if (gamestate.gamestate!.skipCooldown != 0 || DOC.remaining == 0) return;
         const newGameState: GameState = {
             ...gamestate.gamestate!,
             skipCooldown: 2,
@@ -192,15 +197,15 @@ export default function GamePlayer() {
 
         setCanInteract(false);
         await endRound(newGameState);
-        
+
         setCards(newGameState.currentRoom)
-        
+
         gamestate.set({ ...newGameState });
         saveToLS({ ...newGameState })
         setCanInteract(true);
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(gamestate.gamestate?.skipCooldown)
     }, [gamestate.gamestate?.skipCooldown])
 
@@ -232,8 +237,8 @@ export default function GamePlayer() {
                 <HealthDisplayer health={gamestate.gamestate?.health} />
             </div>
             <div style={{ gridArea: 'b' }}>
-                <WeaponDisplay weapon={gamestate.gamestate!.weapon} attackMode={attackMode} onClick={()=>{
-                    if(!gamestate.gamestate?.weapon){
+                <WeaponDisplay weapon={gamestate.gamestate!.weapon} attackMode={attackMode} onClick={() => {
+                    if (!gamestate.gamestate?.weapon) {
                         setAttackMode("Hands")
                         return;
                     }
