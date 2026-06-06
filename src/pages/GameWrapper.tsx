@@ -3,7 +3,7 @@ import GamePlayer from "../components/Game/GamePlayer";
 
 export default function Game() {
     const [durationExpired, setDurationExpired] = useState(false);
-    useEffect(()=>{setTimeout(()=>{setDurationExpired(true)}, 500)},[])
+    useEffect(() => { setTimeout(() => { setDurationExpired(true) }, 500) }, [])
 
     return <>
         <div className={`mx-auto py-[5%] w-10/12 duration-500 -translate-x-1/2 ${durationExpired ? 'translate-x-full' : ''} absolute left-1/2 top-0`}>
@@ -22,8 +22,7 @@ export default function Game() {
                 </button>
             </div>
         </div>
-        <div className={`mx-auto py-[5%] w-10/12 duration-500 -translate-x-full ${durationExpired ? 'translate-x-0' : ''}`}>
-            <GamePlayer />
-        </div>
+        
+        <GamePlayer durationExpired={durationExpired} />
     </>
 }
