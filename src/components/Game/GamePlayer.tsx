@@ -9,6 +9,8 @@ import { saveToLS, type GameState } from "../../lib/localstorage";
 import HealthDisplayer from "./HealthDisplayer";
 import { processCardFight } from "../../util/gameplay";
 
+import HeartbeatVignette from "../misc/HeartbeatVigbette";
+
 export default function GamePlayer({ durationExpired }: { durationExpired: boolean }) {
     const talonRef = useRef<HTMLDivElement>(null);
     const slot1Ref = useRef<HTMLDivElement>(null);
@@ -19,7 +21,6 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
     const gamestate = useGameState();
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
     const [canInteract, setCanInteract] = useState(false);
-    const [healthState, setHealthState] = useState<"Normal" | "Dire" | "Critical">("Normal");
     const DOC = useDeckOfCards();
     const didInitRef = useRef(false);
 
@@ -70,11 +71,7 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
         init();
     }, [])
 
-    useEffect(() => {
-        const gs = gamestate.gamestate;
-        if (gs === null) return;
-        setHealthState(gs.health > 5 ? "Normal" : gs.health <= 1 ? "Critical" : "Dire");
-    }, [gamestate.gamestate?.health])
+
 
     const cardClick = async (slotIdx: number) => {
         if (!canInteract || slotCards[slotIdx] === null) return;
@@ -167,11 +164,8 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
     }, [gamestate.gamestate?.skipCooldown])
 
     return <>
-        <div className={`${healthState == "Normal" ? "opacity-0" : healthState == "Dire" ?
-            "bg-[radial-gradient(transparent,_#f00a)]" : // dire
-            "bg-[radial-gradient(transparent,_#f00a)]" //critical 
-            }
-            pointer-events-none fixed top-0 left-0 w-screen h-screen`}>{healthState}</div> {/* vignette */}
+    <HeartbeatVignette health={gamestate.gamestate!.health} />
+        
         <div className={`mx-auto py-[5%] w-10/12 duration-500 -translate-x-full ${durationExpired ? 'translate-x-0' : ''}`}>
             <h1 className="text-center text-4xl mb-20">Scoundrel</h1>
             <div className="w-8/12 mx-auto flex items-center justify-between">

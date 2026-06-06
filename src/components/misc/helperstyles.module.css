@@ -1,0 +1,42 @@
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999999;
+
+  opacity: var(--o);
+
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 55%,
+    rgba(255, 0, 0, var(--i)) 100%
+  );
+
+  transform: scale(var(--s));
+
+  transition:
+    opacity 700ms cubic-bezier(.22, 1, .36, 1),
+    transform 1200ms cubic-bezier(.22, 1, .36, 1),
+    background 1200ms cubic-bezier(.22, 1, .36, 1);
+
+  animation: heartbeat var(--h) ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    filter: brightness(1);
+    transform: scale(var(--s));
+  }
+
+  15% {
+    filter: brightness(1.15);
+    transform: scale(calc(var(--s) * 1.1));
+  }
+
+  30% {
+    filter: brightness(1);
+    transform: scale(var(--s));
+  }
+}

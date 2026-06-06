@@ -11,11 +11,12 @@ export default function MainMenu() {
     const GStateHook = useGameState();
 
     const newDeck = useDeckOfCards((s) => s.newDeck);
-    const setDeckId = useDeckOfCards((s) => s.deckId); // read current id if needed
 
     const startNewGame = async () => {
         // init deck via zustand store
+        console.log("started new game load")
         await newDeck();
+        console.log("deck done")
 
         const deckId = useDeckOfCards.getState().deckId;
 
