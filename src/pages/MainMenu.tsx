@@ -16,7 +16,6 @@ export default function MainMenu() {
         // init deck via zustand store
         console.log("started new game load")
         await newDeck();
-        console.log("deck done")
 
         const deckId = useDeckOfCards.getState().deckId;
 

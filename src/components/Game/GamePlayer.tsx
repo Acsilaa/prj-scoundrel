@@ -11,6 +11,7 @@ import { processCardFight } from "../../util/gameplay";
 
 import HeartbeatVignette from "../misc/HeartbeatVigbette";
 import GameEndDisplayer from "./GameEndedDisplayer";
+import { codeToNumber } from "../../lib/converter";
 
 export default function GamePlayer({ durationExpired }: { durationExpired: boolean }) {
     const talonRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,9 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
     const gamestate = useGameState();
     const [slotCards, setCards] = useState<(CardCode | null)[]>(gamestate.gamestate!.currentRoom);
     const [gameEnded, setGameEnded] = useState<"defeat" | "victory" | null>(null);
+    const [points, setPoints] = useState<number | undefined>(undefined);
     const [canInteract, setCanInteract] = useState(false);
+    const lastHighscore = Number(localStorage.getItem('highscore')) ?? undefined;
     const DOC = useDeckOfCards();
     const didInitRef = useRef(false);
 
@@ -74,6 +77,8 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
 
             if (realcards == 1 && DOC.remaining == 0) {
                 setGameEnded("victory");
+                const lastCard = newOrder.find(c => c != null)!;
+                setPoints(updatedGameState.health + (lastCard[1] == "H" ? codeToNumber(lastCard) : 0))
                 setCanInteract(false)
             }
             if (gamestate.gamestate!.health == 0) {
@@ -116,6 +121,8 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
         }
         if (cardCount == 1 && DOC.remaining == 0) { // win
             setGameEnded("victory")
+            const lastCard = newCards.find(c => c != null)!;
+            setPoints(newGameState.health + (lastCard[1] == "H" ? codeToNumber(lastCard) : 0))
             setCanInteract(false);
 
         }
@@ -123,7 +130,16 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
         saveToLS({ ...newGameState })
     }
 
+    useEffect(()=>{
+        if(points !== undefined && points == 0) return;
+        const last = localStorage.getItem('highscore') ?? undefined;
+        if(last === undefined){
+            localStorage.setItem('highscore', String(points));
+            return;
+        }
 
+        localStorage.setItem('highscore', String(Math.max(points!, Number(last))));
+    }, [points])
 
     const endRound = async (refGameState: GameState) => {
         refGameState.skipCooldown = Math.max(0, refGameState.skipCooldown - 1);
@@ -233,6 +249,6 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             </div>
         </div>
 
-        <GameEndDisplayer gameEnded={gameEnded} />
+        <GameEndDisplayer gameEnded={gameEnded} points={points} lastHS={lastHighscore} />
     </>
 }

@@ -5,8 +5,8 @@ import type { JSX } from 'react/jsx-runtime'
 import type { GameState } from './lib/localstorage'
 
 type PageState = {
-  current: JSX.Element
-  set: (value: JSX.Element) => void
+  current: JSX.Element | null
+  set: (value: JSX.Element|null) => void
 }
 type GameStateHook = {
   gamestate: GameState | null,
@@ -14,7 +14,7 @@ type GameStateHook = {
 }
 export const usePage = create<PageState>((set) => ({
   current: <MainMenu />,
-  set: (value: JSX.Element) => set({ current: value }),
+  set: (value: JSX.Element|null) => set({ current: value }),
 }))
 export const useGameState = create<GameStateHook>((set)=>({
   gamestate: null,
