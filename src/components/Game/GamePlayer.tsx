@@ -119,7 +119,7 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             setCanInteract(false);
 
         }
-        if (cardCount == 1 && DOC.remaining == 0) { // win
+        if (cardCount == 1 && newGameState.remaining == 0) { // win
             setGameEnded("victory")
             const lastCard = newCards.find(c => c != null)!;
             setPoints(newGameState.health + (lastCard[1] == "H" ? codeToNumber(lastCard) : 0))

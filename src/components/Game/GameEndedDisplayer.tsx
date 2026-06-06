@@ -42,7 +42,7 @@ export default function GameEndDisplayer({
         }
     }, [gameEnded]);
 
-    
+
     const startNewGame = async () => {
         // init deck via zustand store
         console.log("started new game load")
@@ -50,9 +50,9 @@ export default function GameEndDisplayer({
 
         await DOC.newDeck();
         console.log("deck done")
-        
+
         const deckId = useDeckOfCards.getState().deckId;
-        
+
         const newGameState = {
             currentRoom: [null, null, null, null],
             deck_id: deckId!,
@@ -62,14 +62,14 @@ export default function GameEndDisplayer({
             weapon: null,
             remaining: 42,
         };
-        
+
         GStateHook.set(newGameState);
         saveToLS(newGameState);
-        
+
         pagehook.set(<Game />);
     }
     if (!mounted) return null;
-    
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* BACKDROP */}
@@ -98,6 +98,19 @@ export default function GameEndDisplayer({
                         </>}</p>
 
                         <p>Ready for the next one?</p>
+                        <button className="flex items-center gap-4 mx-auto w-max px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md my-6"
+                            onClick={startNewGame}>
+                            <img src="/fist.svg" className="h-8" />
+                            <p className="text-xl">New Game</p>
+                        </button>
+                    </div>}
+
+                {gameEnded == "defeat" &&
+                    <div className="py-14">
+                        <p className="text-4xl text-center">💀</p>
+                        <h2 className="text-4xl mb-4 text-center">Defeat</h2>
+
+                        <p>Try again or puss out</p>
                         <button className="flex items-center gap-4 mx-auto w-max px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-md my-6"
                             onClick={startNewGame}>
                             <img src="/fist.svg" className="h-8" />
