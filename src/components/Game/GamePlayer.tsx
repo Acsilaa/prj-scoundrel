@@ -110,13 +110,13 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             setCanInteract(true);
         }
 
-        cardCount = 4;
-        newCards.forEach(c => c === null ? cardCount-- : null)
         if (newGameState.health == 0) { // lose
             setGameEnded("defeat");
             setCanInteract(false);
-
+            
         }
+        cardCount = 4;
+        newGameState.currentRoom.forEach(c => c === null ? cardCount-- : null)
         if (cardCount == 1 && newGameState.remaining == 0) { // win
             setGameEnded("victory")
             const lastCard = newCards.find(c => c != null)!;
