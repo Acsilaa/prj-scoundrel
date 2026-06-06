@@ -114,6 +114,9 @@ export default function GamePlayer({ durationExpired }: { durationExpired: boole
             await endRound(newGameState);
             setCanInteract(true);
         }
+
+        cardCount = 4;
+        newCards.forEach(c => c === null ? cardCount-- : null)
         if (newGameState.health == 0) { // lose
             setGameEnded("defeat");
             setCanInteract(false);
