@@ -3,7 +3,6 @@ import { useDeckOfCards } from "../../lib/deckofcards";
 import { saveToLS } from "../../lib/localstorage";
 import Game from "../../pages/GameWrapper";
 import { useGameState, usePage } from "../../App";
-import MainMenu from "../../pages/MainMenu";
 
 export default function GameEndDisplayer({
     gameEnded, points, lastHS
